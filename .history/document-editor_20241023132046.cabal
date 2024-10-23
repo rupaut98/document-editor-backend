@@ -68,8 +68,7 @@ executable document-editor
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base >= 4.7 && < 5,
-    servant,
+    build-depends:    base ^>=4.17.2.1servant,
     servant-server,
     wai,
     wai-websockets,

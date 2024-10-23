@@ -68,20 +68,19 @@ executable document-editor
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base >= 4.7 && < 5,
-    servant,
-    servant-server,
-    wai,
-    wai-websockets,
-    websockets,
-    postgresql-simple,
-    persistent,
-    persistent-postgresql,
-    aeson,
-    http-client,
-    servant-auth-server,
-    servant-auth,
-    warp
+    build-depends:    base ^>=4.17.2.1servant,
+                        servant-server,
+                        wai,
+                        wai-websockets,
+                        websockets,
+                        postgresql-simple,
+                        persistent,
+                        persistent-postgresql,
+                        aeson,
+                        http-client,
+                        servant-auth-server,
+                        servant-auth,
+                        warp
 
 
     -- Directories containing source files.

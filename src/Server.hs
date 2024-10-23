@@ -21,5 +21,6 @@ app = serve documentAPI server  -- Use documentAPI directly
 -- Start the Warp server with WebSocket support
 startApp :: IO ()
 startApp = do
+    let staticFiles = staticApp (defaultFileServerSettings "static")
     let wsApp = websocketsOr WS.defaultConnectionOptions collabApp app
     run 8080 wsApp

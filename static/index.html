@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <title>Document Collaboration</title>
-    <script src="elm.js"></script>
   </head>
   <body>
+    <div id="elm-node"></div>
+    <script src="../elm.js"></script> <!-- Make sure this path points to the correct location of elm.js -->
     <script>
       var app = Elm.App.init({
         node: document.getElementById('elm-node')
       });
     </script>
-    <div id="elm-node"></div>
   </body>
 </html>

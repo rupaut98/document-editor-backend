@@ -9,6 +9,7 @@ import qualified Network.WebSockets as WS
 import Servant
 import Api.Document (DocumentAPI, documentAPI, documentServer)  -- Proper import here
 import WebSocket.Collab (collabApp)
+import Network.Wai.Application.Static (staticApp, defaultFileServerSettings)
 
 -- Combine the API with the handlers
 server :: Server DocumentAPI  -- Use DocumentAPI directly

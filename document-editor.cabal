@@ -80,8 +80,7 @@ executable document-editor
                        text,
                        aeson,
                        wai-websockets,
-                       reflex-dom
-
+                       wai-app-static >=3.1.7
 
     -- Directories containing source files.
     hs-source-dirs:   app, src

@@ -1,3 +1,4 @@
+-- src/Server.hs
 {-# LANGUAGE OverloadedStrings #-}
 
 module Server where
@@ -7,34 +8,58 @@ import Network.Wai.Handler.Warp (run)
 import Network.Wai.Handler.WebSockets (websocketsOr)
 import qualified Network.WebSockets as WS
 import Servant
-import Api.Document (DocumentAPI, documentAPI, documentServer)  -- Proper import here
+import Api.Document (DocumentAPI, documentAPI, documentServer)
 import WebSocket.Collab (collabApp)
 import Network.Wai.Application.Static (staticApp, defaultFileServerSettings)
-import Network.Wai.Middleware.Cors
+import Network.HTTP.Types (status200, methodOptions)
+import Data.Text (Text)
+import Data.Monoid ((<>))
+import qualified Data.Text.IO as TIO
+import Data.Tagged (Tagged(..))  -- Import Tagged
 
--- Combine the API with the handlers
-server :: Server DocumentAPI  -- Use DocumentAPI directly
-server = documentServer
+-- Custom CORS Middleware
+corsMiddleware :: Middleware
+corsMiddleware app req respond = do
+    if requestMethod req == methodOptions
+        then respond $ responseLBS
+            status200
+            [ ("Access-Control-Allow-Origin", "http://localhost:3000")
+            , ("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            , ("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            , ("Access-Control-Allow-Credentials", "true")
+            , ("Access-Control-Max-Age", "3600")
+            ]
+            ""
+        else do
+            app req $ \res -> respond $ mapResponseHeaders addCORS res
+  where
+    addCORS headers =
+        ("Access-Control-Allow-Origin", "http://localhost:3000") : headers
 
--- Application for Warp server and WebSocket handling
-app :: Application
-app = serve documentAPI server  -- Use documentAPI directly
+-- Combine the APIs with the handlers
+type CombinedAPI = DocumentAPI :<|> Raw
 
-corsPolicy:: CorsResourcePolicy
-corsPolicy = simpleCorsResourcePolicy
-    { corsOrigins = Just (["http://localhost:3000"], True)  -- Allow http://localhost:3000
-  , corsMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]  -- Allowed HTTP methods
-  , corsRequestHeaders = ["Content-Type", "Authorization"]  -- Allowed headers
-  , corsExposedHeaders = ["Set-Cookie"]  -- Exposed headers (if needed)
-  , corsMaxAge = Just 3600  -- Cache preflight response for 1 hour
-  }
+server :: Server CombinedAPI
+server = documentServer :<|> Tagged (staticApp (defaultFileServerSettings "static"))
 
--- Start the Warp server with WebSocket support
+-- Application for REST API
+appAPI :: Application
+appAPI = serve (Proxy :: Proxy CombinedAPI) server
+
+-- WebSocket Application
+wsApp :: WS.ServerApp
+wsApp = collabApp
+
+-- Combine REST API and WebSocket handling
+combinedApp :: Application
+combinedApp = websocketsOr WS.defaultConnectionOptions wsApp appAPI
+
+-- Apply Custom CORS Middleware
+appWithCors :: Application
+appWithCors = corsMiddleware combinedApp
+
+-- Start the Warp server with CORS and WebSocket support
 startApp :: IO ()
 startApp = do
-    let staticFiles = staticApp (defaultFileServerSettings "static")
-    let wsApp = websocketsOr WS.defaultConnectionOptions collabApp app
-
-    let appWithCors = cors (const $ Just corsPolicy) app
-    
-    run 8080 wsApp
+    putStrLn "Server is running on port 8080"
+    run 8080 appWithCors

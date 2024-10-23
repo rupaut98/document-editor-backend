@@ -79,7 +79,8 @@ executable document-editor
                        wai,
                        text,
                        aeson,
-                       wai-websockets
+                       wai-websockets,
+                       reflex-dom
 
 
     -- Directories containing source files.

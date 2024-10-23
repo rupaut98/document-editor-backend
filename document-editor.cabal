@@ -77,7 +77,9 @@ executable document-editor
                        warp,
                        websockets,
                        wai,
-                       text
+                       text,
+                       aeson,
+                       wai-websockets
 
 
     -- Directories containing source files.

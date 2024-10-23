@@ -1,16 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Server where
 
-import Servant
+import Network.Wai
 import Network.Wai.Handler.Warp (run)
-import Network.Wai (Application)
 import Network.Wai.Handler.WebSockets (websocketsOr)
+import qualified Network.WebSockets as WS
+import Servant
+import Api.Document (DocumentAPI, documentAPI, documentServer)  -- Proper import here
 import WebSocket.Collab (collabApp)
-import Api.Document (documentAPI, documentServer)
-import Api.Auth (authAPI, authServer)
 
+-- Combine the API with the handlers
+server :: Server DocumentAPI  -- Use DocumentAPI directly
+server = documentServer
+
+-- Application for Warp server and WebSocket handling
+app :: Application
+app = serve documentAPI server  -- Use documentAPI directly
+
+-- Start the Warp server with WebSocket support
 startApp :: IO ()
 startApp = do
-    -- Setup the application, combining WebSockets and REST API
-    let app = websocketsOr defaultConnectionOptions collabApp (serve documentAPI documentServer)
-    run 8080 app
+    let wsApp = websocketsOr WS.defaultConnectionOptions collabApp app
+    run 8080 wsApp

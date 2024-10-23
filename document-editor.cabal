@@ -60,32 +60,28 @@ executable document-editor
 
     -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
+    
 
     -- Modules included in this executable, other than Main.
     -- other-modules:
+
+    other-modules:       Api.Document, Server, WebSocket.Collab
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base >= 4.7 && < 5,
-    servant,
-    servant-server,
-    wai,
-    wai-websockets,
-    websockets,
-    postgresql-simple,
-    persistent,
-    persistent-postgresql,
-    aeson,
-    http-client,
-    servant-auth-server,
-    servant-auth,
-    warp
+    build-depends:   base >=4.7 && <5,
+                       servant,
+                       servant-server,
+                       warp,
+                       websockets,
+                       wai,
+                       text
 
 
     -- Directories containing source files.
-    hs-source-dirs:   app
+    hs-source-dirs:   app, src
 
     -- Base language which the package is written in.
     default-language: GHC2021

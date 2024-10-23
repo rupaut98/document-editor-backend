@@ -5,10 +5,16 @@ module Api.Auth where
 
 import Servant
 import Servant.Auth.Server
-import Model (User)
+import Data.Text (Text)
 
-type AuthAPI = Auth '[JWT] User :> ProtectedAPI
+type ProtectedAPI = Auth '[JWT] User :> DocumentAPI
 
--- Login logic, generating JWT tokens
-login :: User -> Handler (Headers '[Header "Set-Cookie" SetCookie] NoContent)
-login user = -- implement JWT token generation
+data User = User { userId :: Int, userName :: Text }
+  deriving (Eq, Show)
+
+instance FromJWT User
+instance ToJWT User
+
+-- Simulate user login (you can later integrate with real login)
+login :: Handler (Headers '[Header "Set-Cookie" SetCookie] NoContent)
+login = return NoContent  -- Simplified for now

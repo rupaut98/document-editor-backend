@@ -9,8 +9,8 @@ import Model (Document)
 connectDB :: IO Connection
 connectDB = connect defaultConnectInfo {
     connectHost = "localhost",
-    connectUser = "postgres",
-    connectPassword = "yourpassword",
+    connectUser = "rupakraut",
+    connectPassword = "rupakraut",
     connectDatabase = "documents_db"
 }
 

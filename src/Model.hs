@@ -17,7 +17,7 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Database.Beam
 import Database.Beam.Postgres
-import Data.Functor.Identity (Identity)
+import Data.Functor.Identity (Identity)  -- Ensure Identity is imported
 
 -- Define the User table
 data UserT f = User
@@ -40,12 +40,16 @@ instance Table UserT where
     data PrimaryKey UserT f = UserId (Columnar f Int) deriving (Generic, Beamable)
     primaryKey = UserId . userId
 
+-- **Add the following instances:**
+deriving instance ToJSON (PrimaryKey UserT Identity)
+deriving instance FromJSON (PrimaryKey UserT Identity)
+
 -- Define the Document table
 data DocumentT f = Document
     { documentId      :: Columnar f Int
     , documentTitle   :: Columnar f Text
     , documentContent :: Columnar f Text
-    , documentOwnerId :: PrimaryKey UserT f -- Foreign key reference to User
+    , documentOwnerId :: PrimaryKey UserT f  -- Foreign key reference to User
     } deriving (Generic, Beamable)
 
 type Document = DocumentT Identity
@@ -54,7 +58,7 @@ deriving instance Eq Document
 instance FromJSON Document
 instance ToJSON Document
 
--- Define the PrimaryKey for DocumentT
+-- Define the PrimaryKey for DocumentT (if needed)
 deriving instance Show (PrimaryKey DocumentT Identity)
 deriving instance Eq (PrimaryKey DocumentT Identity)
 
@@ -62,7 +66,7 @@ instance Table DocumentT where
     data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving (Generic, Beamable)
     primaryKey = DocumentId . documentId
 
--- Define the Database
+-- Beam database settings
 data DocumentDb f = DocumentDb
     { _users     :: f (TableEntity UserT)
     , _documents :: f (TableEntity DocumentT)

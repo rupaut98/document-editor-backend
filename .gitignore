@@ -24,3 +24,4 @@ cabal.project.local~
 .history/
 dist-newstyle/
 .env
+.DS_Store

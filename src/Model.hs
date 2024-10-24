@@ -1,46 +1,91 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module Model where
 
-import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import Database.PostgreSQL.ORM.Model (Model(..), DBKey, DBRef, underscoreModelInfo)
+import Data.Aeson (FromJSON(..), ToJSON(..))
+import Database.Beam
+import Database.Beam.Postgres
 
--- Define the User model
-data User = User
-    { userId       :: !DBKey
-    , userUsername :: !Text
-    , userPassword :: !Text  -- This will store the hashed password
-    } deriving (Show, Generic)
+-- Define the User table
+data UserT f = User
+    { userId       :: Columnar f Int
+    , userUsername :: Columnar f Text
+    , userPassword :: Columnar f Text
+    } deriving (Generic, Beamable)
 
--- Define the Document model
-data Document = Document
-    { documentId      :: !DBKey
-    , documentTitle   :: !Text
-    , documentContent :: !Text
-    , documentOwnerId :: !(DBRef User) -- Foreign key reference to User
-    } deriving (Show, Generic)
-
--- Associate User with a database table using postgresql-orm
-instance Model User where
-    modelInfo = underscoreModelInfo "user"
-
--- Associate Document with a database table using postgresql-orm
-instance Model Document where
-    modelInfo = underscoreModelInfo "document"
-
--- JSON instances for User and Document
+type User = UserT Identity
+deriving instance Show User
+deriving instance Eq User
 instance FromJSON User
 instance ToJSON User
 
+-- Define the PrimaryKey for UserT
+instance Show (PrimaryKey UserT Identity) where
+    show (UserId key) = show key
+
+instance Eq (PrimaryKey UserT Identity) where
+    (UserId id1) == (UserId id2) = id1 == id2
+
+-- Explicitly import and define JSON instances for PrimaryKey
+instance FromJSON (PrimaryKey UserT Identity) where
+    parseJSON = fmap UserId . parseJSON
+
+instance ToJSON (PrimaryKey UserT Identity) where
+    toJSON (UserId key) = toJSON key
+
+instance Table UserT where
+    data PrimaryKey UserT f = UserId (Columnar f Int) deriving (Generic, Beamable)
+    primaryKey = UserId . userId
+
+-- Define the Document table
+data DocumentT f = Document
+    { documentId      :: Columnar f Int
+    , documentTitle   :: Columnar f Text
+    , documentContent :: Columnar f Text
+    , documentOwnerId :: PrimaryKey UserT f -- Foreign key reference to User
+    } deriving (Generic, Beamable)
+
+type Document = DocumentT Identity
+deriving instance Show Document
+deriving instance Eq Document
 instance FromJSON Document
 instance ToJSON Document
+
+-- Define the PrimaryKey for DocumentT
+instance Show (PrimaryKey DocumentT Identity) where
+    show (DocumentId key) = show key
+
+instance Eq (PrimaryKey DocumentT Identity) where
+    (DocumentId id1) == (DocumentId id2) = id1 == id2
+
+-- Explicitly import and define JSON instances for PrimaryKey
+instance FromJSON (PrimaryKey DocumentT Identity) where
+    parseJSON = fmap DocumentId . parseJSON
+
+instance ToJSON (PrimaryKey DocumentT Identity) where
+    toJSON (DocumentId key) = toJSON key
+
+instance Table DocumentT where
+    data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving (Generic, Beamable)
+    primaryKey = DocumentId . documentId
+
+-- Define the Database
+data DocumentDb f = DocumentDb
+    { _users     :: f (TableEntity UserT)
+    , _documents :: f (TableEntity DocumentT)
+    } deriving (Generic, Database be)
+
+-- Beam database settings
+documentDb :: DatabaseSettings be DocumentDb
+documentDb = defaultDbSettings

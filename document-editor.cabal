@@ -34,7 +34,6 @@ executable document-editor
                       warp,
                       persistent,
                       persistent-template,
-                      persistent-postgresql,
                       websockets,
                       wai,
                       jwt,
@@ -50,7 +49,11 @@ executable document-editor
                       mtl,
                       stm,
                       containers,
-                      postgresql-orm
+                      beam-core,
+                        beam-postgres,
+                        beam-migrate
+
+                      
 
     -- Directories containing source files.
     hs-source-dirs:   app, src

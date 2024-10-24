@@ -12,6 +12,8 @@ import Data.Text (Text)
 import GHC.Generics (Generic)
 import Model (User(..))
 import Data.Aeson (ToJSON, FromJSON)
+import Database.Persist (Key)
+
 
 -- Define the User type used in JWT
 data AuthenticatedUser = AuthenticatedUser
@@ -22,6 +24,3 @@ data AuthenticatedUser = AuthenticatedUser
 instance ToJSON AuthenticatedUser
 instance FromJSON AuthenticatedUser
 
--- Define the authentication context
-type instance AuthCookieCfg = CookieSettings
-type instance AuthJWTCfg = JWTSettings

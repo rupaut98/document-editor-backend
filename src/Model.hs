@@ -1,39 +1,46 @@
--- src/Model.hs
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Model where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import Database.Persist.TH (mkPersist, mkMigrate, persistLowerCase, share, sqlSettings)
+import Database.PostgreSQL.ORM.Model (Model(..), DBKey, DBRef, underscoreModelInfo)
 
--- Define the User and Document models
-share
-  [mkPersist sqlSettings, mkMigrate "migrateAll"]
-  [persistLowerCase|
-User
-    username Text
-    password Text
-    UniqueUsername username
-    deriving Show Generic
+-- Define the User model
+data User = User
+    { userId       :: !DBKey
+    , userUsername :: !Text
+    , userPassword :: !Text  -- This will store the hashed password
+    } deriving (Show, Generic)
 
-Document
-    title Text
-    content Text
-    ownerId UserId
-    deriving Show Generic
-|]
+-- Define the Document model
+data Document = Document
+    { documentId      :: !DBKey
+    , documentTitle   :: !Text
+    , documentContent :: !Text
+    , documentOwnerId :: !(DBRef User) -- Foreign key reference to User
+    } deriving (Show, Generic)
 
--- JSON instances for Document and User
-instance FromJSON Document
-instance ToJSON Document
+-- Associate User with a database table using postgresql-orm
+instance Model User where
+    modelInfo = underscoreModelInfo "user"
 
+-- Associate Document with a database table using postgresql-orm
+instance Model Document where
+    modelInfo = underscoreModelInfo "document"
+
+-- JSON instances for User and Document
 instance FromJSON User
 instance ToJSON User
+
+instance FromJSON Document
+instance ToJSON Document

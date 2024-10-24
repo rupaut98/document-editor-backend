@@ -24,7 +24,7 @@ initializeEnv = do
             exitFailure
         Right () -> return ()
 
--- Connect to PostgreSQL using environment variables
+
 connectDB :: IO Connection
 connectDB = do
     initializeEnv

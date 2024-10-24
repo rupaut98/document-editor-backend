@@ -17,7 +17,9 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Database.Beam
 import Database.Beam.Postgres
-import Data.Functor.Identity (Identity)  -- Ensure Identity is imported
+import Database.Beam.Postgres.Connection
+import Data.Functor.Identity (Identity)
+import Beam.Postgres.Aeson (deriveBeamAeson)
 
 -- Define the User table
 data UserT f = User
@@ -29,18 +31,16 @@ data UserT f = User
 type User = UserT Identity
 deriving instance Show User
 deriving instance Eq User
-instance FromJSON User
-instance ToJSON User
+
+-- Derive JSON instances using beam-aeson
+deriveBeamAeson defaultOptions ''UserT
 
 -- Define the PrimaryKey for UserT
-deriving instance Show (PrimaryKey UserT Identity)
-deriving instance Eq (PrimaryKey UserT Identity)
-
 instance Table UserT where
     data PrimaryKey UserT f = UserId (Columnar f Int) deriving (Generic, Beamable)
     primaryKey = UserId . userId
 
--- **Add the following instances:**
+-- Derive JSON instances for PrimaryKey
 deriving instance ToJSON (PrimaryKey UserT Identity)
 deriving instance FromJSON (PrimaryKey UserT Identity)
 
@@ -55,18 +55,20 @@ data DocumentT f = Document
 type Document = DocumentT Identity
 deriving instance Show Document
 deriving instance Eq Document
-instance FromJSON Document
-instance ToJSON Document
 
--- Define the PrimaryKey for DocumentT (if needed)
-deriving instance Show (PrimaryKey DocumentT Identity)
-deriving instance Eq (PrimaryKey DocumentT Identity)
+-- Derive JSON instances using beam-aeson
+deriveBeamAeson defaultOptions ''DocumentT
 
+-- Define the PrimaryKey for DocumentT
 instance Table DocumentT where
     data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving (Generic, Beamable)
     primaryKey = DocumentId . documentId
 
--- Beam database settings
+-- Derive JSON instances for PrimaryKey
+deriving instance ToJSON (PrimaryKey DocumentT Identity)
+deriving instance FromJSON (PrimaryKey DocumentT Identity)
+
+-- Define the Database
 data DocumentDb f = DocumentDb
     { _users     :: f (TableEntity UserT)
     , _documents :: f (TableEntity DocumentT)

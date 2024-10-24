@@ -22,18 +22,19 @@ import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.Maybe (isJust)
 import Control.Monad (void)
+import Data.Pool (Pool)
 
 -- Define the server for AuthAPI
-authServer :: PgConnection -> CookieSettings -> JWTSettings -> Server AuthAPI
-authServer conn cookieCfg jwtCfg = registerHandler :<|> loginHandler
+authServer :: Pool Postgres -> CookieSettings -> JWTSettings -> Server AuthAPI
+authServer pool cookieCfg jwtCfg = registerHandler :<|> loginHandler
   where
     -- Handler for user registration
     registerHandler :: AuthRequest -> Handler NoContent
     registerHandler (AuthRequest uname pwd) = do
-        existingUsers <- liftIO $ runBeamPostgres conn $ runSelectReturningList $ select $
+        users <- liftIO $ runBeamPostgresPool pool $ runSelectReturningList $ select $
             filter_ (\u -> userUsername u ==. val_ uname) (_users documentDb)
         
-        if not (null existingUsers)
+        if not (null users)
             then throwError err400 { errBody = "Username already exists." }
             else do
                 -- Hash the password
@@ -43,7 +44,7 @@ authServer conn cookieCfg jwtCfg = registerHandler :<|> loginHandler
                     Just hashed -> do
                         -- Insert the new user into the database
                         -- Assuming userId is auto-incremented by the database
-                        _ <- liftIO $ runBeamPostgres conn $ runInsert $
+                        _ <- liftIO $ runBeamPostgresPool pool $ runInsert $
                             insert (_users documentDb) $
                             insertExpressions [ User default_ (val_ uname) (val_ $ decodeUtf8 hashed) ]
                         return NoContent
@@ -51,7 +52,7 @@ authServer conn cookieCfg jwtCfg = registerHandler :<|> loginHandler
     -- Handler for user login
     loginHandler :: AuthRequest -> Handler AuthResponse
     loginHandler (AuthRequest uname pwd) = do
-        users <- liftIO $ runBeamPostgres conn $ runSelectReturningList $ select $
+        users <- liftIO $ runBeamPostgresPool pool $ runSelectReturningList $ select $
             filter_ (\u -> userUsername u ==. val_ uname) (_users documentDb)
         
         case users of

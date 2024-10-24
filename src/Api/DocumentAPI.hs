@@ -42,8 +42,10 @@ instance ToJSON DocumentUpdate
 instance FromJSON DocumentUpdate
 
 -- Define the API endpoints for documents
+
 type DocumentAPI =
          "documents" :> ReqBody '[JSON] DocumentCreate :> Auth '[JWT] AuthenticatedUser :> Post '[JSON] DocumentResponse
     :<|> "documents" :> Get '[JSON] [DocumentResponse]
-    :<|> "documents" :> Capture "docId" Int :> ReqBody '[JSON] DocumentUpdate :> Auth '[JWT] AuthenticatedUser :> Put '[JSON] NoContent
-    :<|> "documents" :> Capture "docId" Int :> Auth '[JWT] AuthenticatedUser :> DeleteNoContent '[JSON] NoContent
+    :<|> "documents" :> Capture "docId" Int :> ReqBody '[JSON] DocumentUpdate :> Auth '[JWT] AuthenticatedUser :> PutNoContent
+    :<|> "documents" :> Capture "docId" Int :> Auth '[JWT] AuthenticatedUser :> DeleteNoContent
+

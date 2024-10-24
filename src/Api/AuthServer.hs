@@ -12,20 +12,17 @@ import Servant.Auth.Server
 import Model
 import Database.Beam
 import Database.Beam.Postgres
-import Database.Beam.Postgres.Connection (PgConnection, runBeamPostgres)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Logger (runStdoutLoggingT)
 import Auth
 import Crypto.BCrypt
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Data.Maybe (isJust)
 import Control.Monad (void)
 import Data.Pool (Pool)
 
 -- Define the server for AuthAPI
-authServer :: Pool Postgres -> CookieSettings -> JWTSettings -> Server AuthAPI
+authServer :: Pool Pg.Connection -> CookieSettings -> JWTSettings -> Server AuthAPI
 authServer pool cookieCfg jwtCfg = registerHandler :<|> loginHandler
   where
     -- Handler for user registration

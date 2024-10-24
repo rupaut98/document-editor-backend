@@ -1,14 +1,11 @@
 -- src/Model.hs
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DeriveAnyClass #-}
 
 module Model where
 
@@ -17,32 +14,31 @@ import GHC.Generics (Generic)
 import Data.Aeson (FromJSON, ToJSON)
 import Database.Beam
 import Database.Beam.Postgres
-import Database.Beam.Postgres.Connection
 import Data.Functor.Identity (Identity)
-import Beam.Postgres.Aeson (deriveBeamAeson)
 
 -- Define the User table
 data UserT f = User
     { userId       :: Columnar f Int
     , userUsername :: Columnar f Text
     , userPassword :: Columnar f Text
-    } deriving (Generic, Beamable)
+    } deriving stock (Generic)
+      deriving anyclass (Beamable)
 
 type User = UserT Identity
 deriving instance Show User
 deriving instance Eq User
-
--- Derive JSON instances using beam-aeson
-deriveBeamAeson defaultOptions ''UserT
+instance FromJSON User
+instance ToJSON User
 
 -- Define the PrimaryKey for UserT
 instance Table UserT where
-    data PrimaryKey UserT f = UserId (Columnar f Int) deriving (Generic, Beamable)
+    data PrimaryKey UserT f = UserId (Columnar f Int) deriving stock (Generic)
+                                   deriving anyclass (Beamable)
     primaryKey = UserId . userId
 
--- Derive JSON instances for PrimaryKey
-deriving instance ToJSON (PrimaryKey UserT Identity)
-deriving instance FromJSON (PrimaryKey UserT Identity)
+-- Manually derive ToJSON and FromJSON for PrimaryKey UserT Identity
+deriving anyclass instance ToJSON (PrimaryKey UserT Identity)
+deriving anyclass instance FromJSON (PrimaryKey UserT Identity)
 
 -- Define the Document table
 data DocumentT f = Document
@@ -50,23 +46,24 @@ data DocumentT f = Document
     , documentTitle   :: Columnar f Text
     , documentContent :: Columnar f Text
     , documentOwnerId :: PrimaryKey UserT f  -- Foreign key reference to User
-    } deriving (Generic, Beamable)
+    } deriving stock (Generic)
+      deriving anyclass (Beamable)
 
 type Document = DocumentT Identity
 deriving instance Show Document
 deriving instance Eq Document
-
--- Derive JSON instances using beam-aeson
-deriveBeamAeson defaultOptions ''DocumentT
+instance FromJSON Document
+instance ToJSON Document
 
 -- Define the PrimaryKey for DocumentT
 instance Table DocumentT where
-    data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving (Generic, Beamable)
+    data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving stock (Generic)
+                                       deriving anyclass (Beamable)
     primaryKey = DocumentId . documentId
 
--- Derive JSON instances for PrimaryKey
-deriving instance ToJSON (PrimaryKey DocumentT Identity)
-deriving instance FromJSON (PrimaryKey DocumentT Identity)
+-- Manually derive ToJSON and FromJSON for PrimaryKey DocumentT Identity
+deriving anyclass instance ToJSON (PrimaryKey DocumentT Identity)
+deriving anyclass instance FromJSON (PrimaryKey DocumentT Identity)
 
 -- Define the Database
 data DocumentDb f = DocumentDb

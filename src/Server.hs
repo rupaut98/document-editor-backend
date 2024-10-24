@@ -1,6 +1,7 @@
 -- src/Server.hs
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module Server where
@@ -15,16 +16,18 @@ import Data.Pool (Pool)
 import Auth
 import Model
 import Api.AuthAPI
-import Api.DocumentAPI
 import Api.AuthServer
+import Api.DocumentAPI
 import Api.DocumentServer
+import WebSocket.Collab (collabApp)  -- If used
+import Network.Wai.Application.Static (staticApp, defaultFileServerSettings)
 
+-- Combine the APIs
 type CombinedAPI = AuthAPI :<|> DocumentAPI :<|> Raw
 
-serverWithAuth :: Pool Postgres -> CookieSettings -> JWTSettings -> Server CombinedAPI
+-- Define the server with authentication
+serverWithAuth :: Pool Pg.Connection -> CookieSettings -> JWTSettings -> Server CombinedAPI
 serverWithAuth pool cookieCfg jwtCfg =
          authServer pool cookieCfg jwtCfg
     :<|> documentServer pool cookieCfg jwtCfg
-    :<|> serveDirectoryFileServer "static"
-
--- Implement serveDirectoryFileServer as per your requirements
+    :<|> serveDirectoryFileServer "static"  -- Serve static files from "static" directory

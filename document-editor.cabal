@@ -26,36 +26,32 @@ executable document-editor
     ghc-options:      -Wall
 
     -- Other library packages from which modules are imported.
-    build-depends:  base >=4.7 && <5,
-                    servant,
-                    servant-server,
-                    servant-auth,
-                    servant-auth-server,
-                    warp,
-                    persistent,
-                    persistent-template,
-                    websockets,
-                    wai,
-                    jwt,
-                    bcrypt,
-                    bytestring,
-                    transformers,
-                    text,
-                    aeson,
-                    wai-websockets,
-                    wai-app-static >=3.1.7,
-                    http-types >=0.12 && <0.13,
-                    tagged,
-                    mtl,
-                    stm,
-                    containers,
-                    beam-core,
-                    beam-postgres,
-                    beam-migrate,
-                    monad-logger
-
-
-                      
+    build-depends:base,
+                  servant,
+                  servant-server,
+                  servant-auth,
+                  servant-auth-server,
+                  warp,
+                  websockets,
+                  wai,
+                  jwt,
+                  bcrypt,
+                  bytestring,
+                  transformers,
+                  text,
+                  aeson,
+                  wai-websockets,
+                  wai-app-static,
+                  http-types,
+                  tagged,
+                  mtl,
+                  stm,
+                  containers,
+                  websockets,
+                  beam-core,
+                  beam-postgres,
+                  beam-migrate,
+                  monad-logger
 
     -- Directories containing source files.
     hs-source-dirs:   app, src

@@ -10,4 +10,3 @@ data PostgresConfig = PostgresConfig
     { pgConnStr :: PostgresConnectionString
     }
 
--- You can extend this with more configuration options as needed

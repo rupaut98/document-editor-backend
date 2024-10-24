@@ -17,7 +17,7 @@ collabApp pending = do
 -- Function to handle messages from clients
 talk :: WS.Connection -> IO ()
 talk conn = do
-    msg <- WS.receiveData conn :: IO Text  -- Explicitly specify the type as Text
-    TIO.putStrLn ("Received message: " <> msg)  -- Use Text-aware putStrLn
+    msg <- WS.receiveData conn :: IO Text
+    TIO.putStrLn ("Received message: " <> msg)  
     WS.sendTextData conn ("You said: " <> msg)
     talk conn

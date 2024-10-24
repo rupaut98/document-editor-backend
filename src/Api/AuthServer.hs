@@ -12,7 +12,7 @@ import Servant.Auth.Server
 import Model
 import Database.Beam
 import Database.Beam.Postgres
-import qualified Database.Beam.Postgres.Connection as Pg
+import Database.Beam.Postgres.Connection (Pg.Connection)
 import Control.Monad.IO.Class (liftIO)
 import Auth
 import Crypto.BCrypt
@@ -21,13 +21,13 @@ import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Control.Monad (void)
 import Data.Pool (Pool)
-import Api.AuthAPI (AuthAPI, AuthRequest(..), AuthResponse(..))  -- Import AuthAPI and related types
+import Api.AuthAPI (AuthAPI, AuthRequest(..), AuthResponse(..)) 
 
--- Define the server for AuthAPI
+
 authServer :: Pool Pg.Connection -> CookieSettings -> JWTSettings -> Server AuthAPI
 authServer pool cookieCfg jwtCfg = registerHandler :<|> loginHandler
   where
-    -- Handler for user registration
+    
     registerHandler :: AuthRequest -> Handler NoContent
     registerHandler (AuthRequest uname pwd) = do
         users <- liftIO $ runBeamPostgresPool pool $ runSelectReturningList $ select $
@@ -36,13 +36,11 @@ authServer pool cookieCfg jwtCfg = registerHandler :<|> loginHandler
         if not (null users)
             then throwError err400 { errBody = "Username already exists." }
             else do
-                -- Hash the password
+                
                 mHashed <- liftIO $ hashPasswordUsingPolicy slowerBcryptHashingPolicy (encodeUtf8 pwd)
                 case mHashed of
                     Nothing -> throwError err500 { errBody = "Failed to hash password." }
                     Just hashed -> do
-                        -- Insert the new user into the database
-                        -- Assuming userId is auto-incremented by the database
                         _ <- liftIO $ runBeamPostgresPool pool $ runInsert $
                             insert (_users documentDb) $
                             insertExpressions [ User default_ (val_ uname) (val_ $ decodeUtf8 hashed) ]

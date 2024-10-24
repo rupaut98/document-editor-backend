@@ -37,11 +37,10 @@ instance Table UserT where
                                                    deriving anyclass (Beamable)
     primaryKey = UserId . userId
 
--- Standalone deriving for Show and Eq
 deriving instance Show (PrimaryKey UserT Identity)
 deriving instance Eq (PrimaryKey UserT Identity)
 
--- Standalone deriving for ToJSON and FromJSON
+
 deriving anyclass instance ToJSON (PrimaryKey UserT Identity)
 deriving anyclass instance FromJSON (PrimaryKey UserT Identity)
 
@@ -66,11 +65,11 @@ instance Table DocumentT where
                                                    deriving anyclass (Beamable)
     primaryKey = DocumentId . documentId
 
--- Standalone deriving for Show and Eq
+
 deriving instance Show (PrimaryKey DocumentT Identity)
 deriving instance Eq (PrimaryKey DocumentT Identity)
 
--- Standalone deriving for ToJSON and FromJSON
+
 deriving anyclass instance ToJSON (PrimaryKey DocumentT Identity)
 deriving anyclass instance FromJSON (PrimaryKey DocumentT Identity)
 
@@ -81,6 +80,6 @@ data DocumentDb f = DocumentDb
     } deriving stock (Generic)
       deriving anyclass (Database be)
 
--- Beam database settings
+
 documentDb :: DatabaseSettings be DocumentDb
 documentDb = defaultDbSettings

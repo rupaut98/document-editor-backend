@@ -30,4 +30,4 @@ serverWithAuth :: Pool Pg.Connection -> CookieSettings -> JWTSettings -> Server 
 serverWithAuth pool cookieCfg jwtCfg =
          authServer pool cookieCfg jwtCfg
     :<|> documentServer pool cookieCfg jwtCfg
-    :<|> serveDirectoryFileServer "static"  -- Serve static files from "static" directory
+    :<|> serveDirectoryFileServer "static" 

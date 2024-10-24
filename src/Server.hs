@@ -8,15 +8,13 @@ module Server where
 
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
-import Network.Wai.Handler.WebSockets (websocketsOr)
-import qualified Network.WebSockets as WS
 import Servant
 import Servant.Auth.Server
 import Api.AuthAPI
 import Api.AuthServer
-import Api.DocumentAPI
+import Api.DocumentAPI -- Updated import
 import Api.DocumentServer
-import WebSocket.Collab (collabApp)
+import WebSocket.Collab (collabApp) -- Not used for now
 import Network.Wai.Application.Static (staticApp, defaultFileServerSettings)
 import Network.HTTP.Types (status200, methodOptions)
 import Data.Text (Text)
@@ -26,9 +24,6 @@ import Data.Tagged (Tagged(..))
 import Model
 import Database.Persist.Sqlite
 import Auth
-import Control.Concurrent.STM (newTVarIO)
-import Control.Monad.Logger (runStderrLoggingT)
-import Control.Monad.Trans.Reader (liftIO)
 
 -- Combine the APIs with the handlers
 type CombinedAPI = AuthAPI :<|> DocumentAPI :<|> Raw
@@ -75,7 +70,7 @@ startApp = do
     -- docsState <- initDocsState -- Implement if required
 
     -- Run database migrations
-    runStderrLoggingT $ withSqlitePool "documents.db" 10 $ \pool -> liftIO $ do
+    runStderrLoggingT $ withSqlPersistMPool "documents.db" 10 $ \pool -> liftIO $ do
         flip runSqlPersistMPool pool $ runMigration migrateAll
 
         -- Define WebSocket application

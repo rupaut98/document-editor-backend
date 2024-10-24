@@ -5,7 +5,6 @@
 module Api.AuthAPI where
 
 import Servant
-import Servant.Auth.Server
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Data.Aeson (ToJSON, FromJSON)
@@ -28,5 +27,6 @@ data AuthResponse = AuthResponse
 instance ToJSON AuthResponse
 instance FromJSON AuthResponse
 
+-- Define the Auth API
 type AuthAPI = "register" :> ReqBody '[JSON] AuthRequest :> PostNoContent '[JSON] NoContent
         :<|> "login" :> ReqBody '[JSON] AuthRequest :> Post '[JSON] AuthResponse

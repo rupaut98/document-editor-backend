@@ -19,7 +19,6 @@ import Crypto.BCrypt
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Data.ByteString.Char8 (pack, unpack)
 import Data.Maybe (isJust)
 
 -- Define the server for AuthAPI

@@ -28,5 +28,6 @@ instance ToJSON AuthResponse
 instance FromJSON AuthResponse
 
 -- Define the Auth API
-type AuthAPI = "register" :> ReqBody '[JSON] AuthRequest :> PostNoContent '[JSON] NoContent
-        :<|> "login" :> ReqBody '[JSON] AuthRequest :> Post '[JSON] AuthResponse
+type AuthAPI = "register" :> ReqBody '[JSON] AuthRequest :> PostNoContent
+           :<|> "login" :> ReqBody '[JSON] AuthRequest :> Post '[JSON] AuthResponse
+

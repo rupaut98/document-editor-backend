@@ -79,7 +79,7 @@ executable document-editor
                        warp,
                        persistent,
                        persistent-template,
-                       persistent-postgresql
+                       persistent-postgresql,
                        websockets,
                        wai,
                        jwt,
@@ -91,7 +91,10 @@ executable document-editor
                        wai-websockets,
                        wai-app-static >=3.1.7,
                        http-types >=0.12 && <0.13,
-                       tagged
+                       tagged,
+                       mtl,
+                       stm,
+                       containers
 
     -- Directories containing source files.
     hs-source-dirs:   app, src

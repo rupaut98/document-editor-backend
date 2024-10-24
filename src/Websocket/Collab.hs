@@ -1,10 +1,10 @@
+-- src/WebSocket/Collab.hs
 {-# LANGUAGE OverloadedStrings #-}
 
 module WebSocket.Collab where
 
 import qualified Network.WebSockets as WS
-import Data.Text (Text, unpack)
-import Data.Monoid ((<>))
+import Data.Text (Text)
 import qualified Data.Text.IO as TIO
 
 -- A simple WebSocket handler

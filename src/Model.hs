@@ -1,4 +1,5 @@
 -- src/Model.hs
+
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
@@ -36,11 +37,11 @@ instance Table UserT where
                                                    deriving anyclass (Beamable)
     primaryKey = UserId . userId
 
--- Manually derive Show and Eq instances for PrimaryKey UserT Identity
+-- Standalone deriving for Show and Eq
 deriving instance Show (PrimaryKey UserT Identity)
 deriving instance Eq (PrimaryKey UserT Identity)
 
--- Manually derive ToJSON and FromJSON for PrimaryKey UserT Identity
+-- Standalone deriving for ToJSON and FromJSON
 deriving anyclass instance ToJSON (PrimaryKey UserT Identity)
 deriving anyclass instance FromJSON (PrimaryKey UserT Identity)
 
@@ -62,14 +63,14 @@ instance ToJSON Document
 -- Define the PrimaryKey for DocumentT
 instance Table DocumentT where
     data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving stock (Generic)
-                                                 deriving anyclass (Beamable)
+                                                   deriving anyclass (Beamable)
     primaryKey = DocumentId . documentId
 
--- Manually derive Show and Eq instances for PrimaryKey DocumentT Identity
+-- Standalone deriving for Show and Eq
 deriving instance Show (PrimaryKey DocumentT Identity)
 deriving instance Eq (PrimaryKey DocumentT Identity)
 
--- Manually derive ToJSON and FromJSON for PrimaryKey DocumentT Identity
+-- Standalone deriving for ToJSON and FromJSON
 deriving anyclass instance ToJSON (PrimaryKey DocumentT Identity)
 deriving anyclass instance FromJSON (PrimaryKey DocumentT Identity)
 
@@ -77,7 +78,8 @@ deriving anyclass instance FromJSON (PrimaryKey DocumentT Identity)
 data DocumentDb f = DocumentDb
     { _users     :: f (TableEntity UserT)
     , _documents :: f (TableEntity DocumentT)
-    } deriving (Generic, Database be)
+    } deriving stock (Generic)
+      deriving anyclass (Database be)
 
 -- Beam database settings
 documentDb :: DatabaseSettings be DocumentDb

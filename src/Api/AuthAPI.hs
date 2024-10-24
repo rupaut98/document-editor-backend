@@ -1,33 +1,28 @@
 -- src/Api/AuthAPI.hs
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Api.AuthAPI where
 
 import Servant
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import Data.Aeson (ToJSON, FromJSON)
-import Model (User(..))
+import Data.Aeson (FromJSON, ToJSON)
 
--- Request body for registration and login
+-- | Request type for registration and login
 data AuthRequest = AuthRequest
-    { username :: Text
-    , password :: Text
-    } deriving (Generic, Show)
+    { uname :: Text
+    , pwd   :: Text
+    } deriving (Generic, Show, Eq, FromJSON, ToJSON)
 
-instance ToJSON AuthRequest
-instance FromJSON AuthRequest
-
--- Response after successful login
+-- | Response type for authentication (e.g., JWT token)
 data AuthResponse = AuthResponse
     { token :: Text
-    } deriving (Generic, Show)
+    } deriving (Generic, Show, Eq, FromJSON, ToJSON)
 
-instance ToJSON AuthResponse
-instance FromJSON AuthResponse
-
--- Define the Auth API
-type AuthAPI = "register" :> ReqBody '[JSON] AuthRequest :> PostNoContent
-           :<|> "login" :> ReqBody '[JSON] AuthRequest :> Post '[JSON] AuthResponse
-
+-- | Define the Auth API with two endpoints: register and login
+type AuthAPI =
+         "register" :> ReqBody '[JSON] AuthRequest :> PostNoContent '[JSON] NoContent
+    :<|> "login"    :> ReqBody '[JSON] AuthRequest :> Post '[JSON] AuthResponse

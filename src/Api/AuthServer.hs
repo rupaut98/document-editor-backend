@@ -12,6 +12,7 @@ import Servant.Auth.Server
 import Model
 import Database.Beam
 import Database.Beam.Postgres
+import qualified Database.Beam.Postgres.Connection as Pg
 import Control.Monad.IO.Class (liftIO)
 import Auth
 import Crypto.BCrypt
@@ -20,6 +21,7 @@ import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Control.Monad (void)
 import Data.Pool (Pool)
+import Api.AuthAPI (AuthAPI, AuthRequest(..), AuthResponse(..))  -- Import AuthAPI and related types
 
 -- Define the server for AuthAPI
 authServer :: Pool Pg.Connection -> CookieSettings -> JWTSettings -> Server AuthAPI

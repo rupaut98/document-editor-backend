@@ -1,3 +1,4 @@
+-- src/Model.hs
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -13,9 +14,10 @@ module Model where
 
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import Data.Aeson (FromJSON(..), ToJSON(..))
+import Data.Aeson (FromJSON, ToJSON)
 import Database.Beam
 import Database.Beam.Postgres
+import Data.Functor.Identity (Identity)
 
 -- Define the User table
 data UserT f = User
@@ -31,18 +33,8 @@ instance FromJSON User
 instance ToJSON User
 
 -- Define the PrimaryKey for UserT
-instance Show (PrimaryKey UserT Identity) where
-    show (UserId key) = show key
-
-instance Eq (PrimaryKey UserT Identity) where
-    (UserId id1) == (UserId id2) = id1 == id2
-
--- Explicitly import and define JSON instances for PrimaryKey
-instance FromJSON (PrimaryKey UserT Identity) where
-    parseJSON = fmap UserId . parseJSON
-
-instance ToJSON (PrimaryKey UserT Identity) where
-    toJSON (UserId key) = toJSON key
+deriving instance Show (PrimaryKey UserT Identity)
+deriving instance Eq (PrimaryKey UserT Identity)
 
 instance Table UserT where
     data PrimaryKey UserT f = UserId (Columnar f Int) deriving (Generic, Beamable)
@@ -63,18 +55,8 @@ instance FromJSON Document
 instance ToJSON Document
 
 -- Define the PrimaryKey for DocumentT
-instance Show (PrimaryKey DocumentT Identity) where
-    show (DocumentId key) = show key
-
-instance Eq (PrimaryKey DocumentT Identity) where
-    (DocumentId id1) == (DocumentId id2) = id1 == id2
-
--- Explicitly import and define JSON instances for PrimaryKey
-instance FromJSON (PrimaryKey DocumentT Identity) where
-    parseJSON = fmap DocumentId . parseJSON
-
-instance ToJSON (PrimaryKey DocumentT Identity) where
-    toJSON (DocumentId key) = toJSON key
+deriving instance Show (PrimaryKey DocumentT Identity)
+deriving instance Eq (PrimaryKey DocumentT Identity)
 
 instance Table DocumentT where
     data PrimaryKey DocumentT f = DocumentId (Columnar f Int) deriving (Generic, Beamable)

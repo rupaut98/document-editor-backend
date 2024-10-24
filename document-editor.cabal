@@ -51,7 +51,9 @@ executable document-editor
                       containers,
                       beam-core,
                         beam-postgres,
-                        beam-migrate
+                        beam-migrate,
+                        monad-logger
+
 
                       
 
